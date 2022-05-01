@@ -7,65 +7,58 @@ import sys
 n = len(sys.argv)
 
 if n < 2:
-    exit("Takes a compulsory argument - name of recording, and optional argument - record-all")
-
-if n > 3:
-    exit("Only takes two arguments - name of recording and (optional) record-all")
+    exit("Takes a compulsory argument - name of recording")
 
 if n == 2:
     name_of_recording = str(sys.argv[1])
-    record_all = False
-if n == 3:
-    if str(sys.argv[2]) != "record-all":
-        exit("The second argument given must be 'record-all', otherwise only pass the name of recording as a parameter")
-    name_of_recording = str(sys.argv[1])
-    record_all = True
 
-print("Hold right click for more than 2 seconds (and then release) to end the recording for mouse and click 'esc' to end the recording for keyboard (both are needed to finish recording)")
+print("Hold left click for more than 1 seconds (and then release) to end the recording for mouse and click 'esc' to end the recording for keyboard (both are needed to finish recording)")
 
 storage = []
 count = 0
+id = 0
 
 def on_press(key):
+    global id
+    id = id + 1
     try:
-        json_object = {'action':'pressed_key', 'key':key.char, '_time': time.time()}
+        json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': time.time()}
     except AttributeError:
         if key == keyboard.Key.esc:
             return False
-        json_object = {'action':'pressed_key', 'key':str(key), '_time': time.time()}
+        json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': time.time()}
     storage.append(json_object)
 
 def on_release(key):
+    global id
+    id = id + 1
     try:
-        json_object = {'action':'released_key', 'key':key.char, '_time': time.time()}
+        json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': time.time()}
     except AttributeError:
         json_object = {'action':'released_key', 'key':str(key), '_time': time.time()}
     storage.append(json_object)
 
 
 def on_move(x, y):
-    if (record_all) == True:
-        if len(storage) >= 1:
-            if storage[-1]['action'] != "moved":
-                json_object = {'action':'moved', 'x':x, 'y':y, '_time':time.time()}
-                storage.append(json_object)
-            elif storage[-1]['action'] == "moved" and time.time() - storage[-1]['_time'] > 0.02:
-                json_object = {'action':'moved', 'x':x, 'y':y, '_time':time.time()}
-                storage.append(json_object)
-        else:
-            json_object = {'action':'moved', 'x':x, 'y':y, '_time':time.time()}
+    global id
+    id = id + 1
+    if len(storage) >= 1:
+        if storage[-1]['action'] != "moved":
+            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':time.time()}
+            storage.append(json_object)
+        # TODO should window be shorter?
+        elif storage[-1]['action'] == "moved" and time.time() - storage[-1]['_time'] > 0.01:
+            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':time.time()}
             storage.append(json_object)
     else:
-        if len(storage) >= 1:
-            if (storage[-1]['action'] == "pressed" and storage[-1]['button'] == 'Button.left') or (storage[-1]['action'] == "moved" and time.time() - storage[-1]['_time'] > 0.02):
-                json_object = {'action':'moved', 'x':x, 'y':y, '_time':time.time()}
-                storage.append(json_object)
+        json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':time.time()}
+        storage.append(json_object)
 
 def on_click(x, y, button, pressed):
-    json_object = {'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':time.time()}
+    json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':time.time()}
     storage.append(json_object)
     if len(storage) > 1:
-        if storage[-1]['action'] == 'released' and storage[-1]['button'] == 'Button.right' and storage[-1]['_time'] - storage[-2]['_time'] > 2:
+        if storage[-1]['action'] == 'released' and storage[-1]['button'] == 'Button.left' and storage[-1]['_time'] - storage[-2]['_time'] > 1:
             with open(name_of_recording, 'w') as outfile:
                 json.dump(storage, outfile)
             return False

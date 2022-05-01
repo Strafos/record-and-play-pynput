@@ -6,13 +6,10 @@ import sys
 
 n = len(sys.argv)
 
-if n < 3:
-    exit("Takes two arguments - name of recording to play and number of times to play it")
-
-if n > 3:
-    exit("Only takes two argument - name of recording to play and number of times to play it")
-
-if n == 3:
+if n == 2:
+    name_of_recording = str(sys.argv[1])
+    number_of_plays = 1
+else:
     name_of_recording = str(sys.argv[1])
     number_of_plays = int(sys.argv[2])
 
@@ -26,7 +23,7 @@ keyboard = KeyboardController()
 
 for loop in range(number_of_plays):
     for index, obj in enumerate(data):
-        action, _time= obj['action'], obj['_time']
+        id, action, _time = obj['id'], obj['action'], obj['_time']
         try:
             next_movement = data[index+1]['_time']
             pause_time = next_movement - _time
@@ -35,7 +32,7 @@ for loop in range(number_of_plays):
 
         if action == "pressed_key" or action == "released_key":
             key = obj['key'] if 'Key.' not in obj['key'] else special_keys[obj['key']]
-            print("action: {0}, time: {1}, key: {2}".format(action, _time, str(key)))
+            print("id: {0}, action: {1}, time: {2}, key: {3}".format(id, action, _time, str(key)))
             if action == "pressed_key":
                 keyboard.press(key)
             else:
@@ -49,7 +46,7 @@ for loop in range(number_of_plays):
             if action == "scroll" and index > 0 and (data[index - 1]['action'] == "pressed" or data[index - 1]['action'] == "released"):
                 if x == data[index - 1]['x'] and y == data[index - 1]['y']:
                     move_for_scroll = False
-            print("x: {0}, y: {1}, action: {2}, time: {3}".format(x, y, action, _time))
+            print("id: {0}, x: {1}, y: {2}, action: {3}, time: {4}".format(id, x, y, action, _time))
             mouse.position = (x, y)
             if action == "pressed" or action == "released" or action == "scroll" and move_for_scroll == True:
                 time.sleep(0.1)
