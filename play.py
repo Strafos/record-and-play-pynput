@@ -37,7 +37,6 @@ for loop in range(number_of_plays):
                 keyboard.press(key)
             else:
                 keyboard.release(key)
-            time.sleep(pause_time)
 
 
         else:
@@ -48,8 +47,7 @@ for loop in range(number_of_plays):
                     move_for_scroll = False
             print("id: {0}, x: {1}, y: {2}, action: {3}, time: {4}".format(id, x, y, action, _time))
             mouse.position = (x, y)
-            if action == "pressed" or action == "released" or action == "scroll" and move_for_scroll == True:
-                time.sleep(0.1)
+
             if action == "pressed":
                 mouse.press(Button.left if obj['button'] == "Button.left" else Button.right)
             elif action == "released":
@@ -57,7 +55,6 @@ for loop in range(number_of_plays):
             elif action == "scroll":
                 horizontal_direction, vertical_direction = obj['horizontal_direction'], obj['vertical_direction']
                 mouse.scroll(horizontal_direction, vertical_direction)
-            time.sleep(pause_time)
 
-
+        time.sleep(pause_time)
 

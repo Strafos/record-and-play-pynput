@@ -17,6 +17,7 @@ print("Hold left click for more than 1 seconds (and then release) to end the rec
 storage = []
 count = 0
 id = 0
+end = False
 
 def on_press(key):
     global id
@@ -24,7 +25,11 @@ def on_press(key):
     try:
         json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': time.time()}
     except AttributeError:
-        if key == keyboard.Key.esc:
+        if key == keyboard.Key.f17:
+            global end
+            end = True
+            with open(name_of_recording, 'w') as outfile:
+                json.dump(storage, outfile)
             return False
         json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': time.time()}
     storage.append(json_object)
@@ -35,13 +40,19 @@ def on_release(key):
     try:
         json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': time.time()}
     except AttributeError:
-        json_object = {'action':'released_key', 'key':str(key), '_time': time.time()}
+        json_object = {'id':id, 'action':'released_key', 'key':str(key), '_time': time.time()}
     storage.append(json_object)
-
 
 def on_move(x, y):
     global id
     id = id + 1
+
+    global end
+    if end:
+        with open(name_of_recording, 'w') as outfile:
+            json.dump(storage, outfile)
+        return False
+
     if len(storage) >= 1:
         if storage[-1]['action'] != "moved":
             json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':time.time()}
@@ -57,16 +68,14 @@ def on_move(x, y):
 def on_click(x, y, button, pressed):
     json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':time.time()}
     storage.append(json_object)
-    if len(storage) > 1:
-        if storage[-1]['action'] == 'released' and storage[-1]['button'] == 'Button.left' and storage[-1]['_time'] - storage[-2]['_time'] > 1:
-            with open(name_of_recording, 'w') as outfile:
-                json.dump(storage, outfile)
-            return False
-
 
 def on_scroll(x, y, dx, dy):
-    json_object = {'action': 'scroll', 'vertical_direction': int(dy), 'horizontal_direction': int(dx), 'x':x, 'y':y, '_time': time.time()}
+    global id
+    id = id + 1
+    json_object = {'id':id, 'action': 'scroll', 'vertical_direction': int(dy), 'horizontal_direction': int(dx), 'x':x, 'y':y, '_time': time.time()}
     storage.append(json_object)
+    global end
+    end = True
 
 
 # Collect events from keyboard until esc
