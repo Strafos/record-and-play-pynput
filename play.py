@@ -13,7 +13,7 @@ if n > 3:
     exit("Only takes two argument - name of recording to play and number of times to play it")
 
 if n == 3:
-    name_of_recording = "data/" + str(sys.argv[1]) +'.txt'
+    name_of_recording = str(sys.argv[1])
     number_of_plays = int(sys.argv[2])
 
 with open(name_of_recording) as json_file:
@@ -32,7 +32,7 @@ for loop in range(number_of_plays):
             pause_time = next_movement - _time
         except IndexError as e:
             pause_time = 1
-        
+
         if action == "pressed_key" or action == "released_key":
             key = obj['key'] if 'Key.' not in obj['key'] else special_keys[obj['key']]
             print("action: {0}, time: {1}, key: {2}".format(action, _time, str(key)))
@@ -61,6 +61,6 @@ for loop in range(number_of_plays):
                 horizontal_direction, vertical_direction = obj['horizontal_direction'], obj['vertical_direction']
                 mouse.scroll(horizontal_direction, vertical_direction)
             time.sleep(pause_time)
-    
+
 
 

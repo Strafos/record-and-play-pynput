@@ -41,7 +41,7 @@ def on_release(key):
     except AttributeError:
         json_object = {'action':'released_key', 'key':str(key), '_time': time.time()}
     storage.append(json_object)
-        
+
 
 def on_move(x, y):
     if (record_all) == True:
@@ -66,7 +66,7 @@ def on_click(x, y, button, pressed):
     storage.append(json_object)
     if len(storage) > 1:
         if storage[-1]['action'] == 'released' and storage[-1]['button'] == 'Button.right' and storage[-1]['_time'] - storage[-2]['_time'] > 2:
-            with open('data/{}.txt'.format(name_of_recording), 'w') as outfile:
+            with open(name_of_recording, 'w') as outfile:
                 json.dump(storage, outfile)
             return False
 
