@@ -130,3 +130,5 @@ dmypy.json
 
 # Recording files
 .txt
+
+data/

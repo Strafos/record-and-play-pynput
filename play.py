@@ -38,7 +38,7 @@ keyboard_listener.start()
 for loop in range(number_of_plays):
     count = len(data)
     index = 0
-    while index < count: 
+    while index < count - 1: 
         if pause:
             continue
         index += 1
