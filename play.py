@@ -54,8 +54,6 @@ for loop in range(number_of_plays):
 
         print("id: {0}, pause_time: {1}".format(id, pause_time))
         if action == "pressed_key" or action == "released_key":
-            if obj['key'] == "null":
-                continue
             key = obj['key'] if 'Key.' not in obj['key'] else special_keys[obj['key']]
             # print("id: {0}, action: {1}, time: {2}, key: {3}".format(id, action, _time, str(key)))
             if action == "pressed_key":

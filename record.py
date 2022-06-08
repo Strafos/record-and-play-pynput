@@ -54,17 +54,11 @@ def on_press(key):
     try:
         json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': record_time}
     except AttributeError:
-<<<<<<< HEAD
         if key == keyboard.Key.f17:
             end_recording = True
             print("Recording stopped at " + str(time.time()))
             print("Elapsed time: " + str(time.time() - start_time))
             print("Elapsed pause time: " + str(elapsed_pause_time))
-=======
-        if key == keyboard.Key.f7:
-            global end
-            end = True
->>>>>>> 2eb6f163283e398f877d7ad500f9c640d1fc2e6d
             with open(name_of_recording, 'w') as outfile:
                 json.dump(storage, outfile, indent=4)
             return False
@@ -109,7 +103,7 @@ def on_move(x, y):
         if storage[-1]['action'] != "moved":
             json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
             storage.append(json_object)
-        else record_time - storage[-1]['_time'] > 0.005:
+        elif record_time - storage[-1]['_time'] > 0.005:
             json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
             storage.append(json_object)
     else:
