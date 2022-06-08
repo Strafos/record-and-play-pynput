@@ -50,7 +50,7 @@ def on_move(x, y):
     global end
     if end:
         with open(name_of_recording, 'w') as outfile:
-            json.dump(storage, outfile)
+            json.dump(storage, outfile, indent=4)
         return False
 
     if len(storage) >= 1:
