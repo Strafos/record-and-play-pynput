@@ -25,7 +25,7 @@ def on_press(key):
     try:
         json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': time.time()}
     except AttributeError:
-        if key == keyboard.Key.f17:
+        if key == keyboard.Key.f7:
             global end
             end = True
             with open(name_of_recording, 'w') as outfile:
