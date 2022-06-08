@@ -103,7 +103,6 @@ def on_move(x, y):
         if storage[-1]['action'] != "moved":
             json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
             storage.append(json_object)
-        # TODO should window be shorter?
         else record_time - storage[-1]['_time'] > 0.005:
             json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
             storage.append(json_object)
