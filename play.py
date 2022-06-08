@@ -35,13 +35,13 @@ m = mouse.Controller()
 kb = keyboard.Controller()
 keyboard_listener.start()
 
+count = len(data)
+
 for loop in range(number_of_plays):
-    count = len(data)
     index = 0
-    while index < count - 1: 
+    while index < count - 1:
         if pause:
             continue
-        index += 1
 
         obj = data[index]
 
@@ -50,23 +50,18 @@ for loop in range(number_of_plays):
             next_movement = data[index+1]['_time']
             pause_time = next_movement - _time
         except IndexError as e:
-            pause_time = 1
+            break
 
+        print("id: {0}, pause_time: {1}".format(id, pause_time))
         if action == "pressed_key" or action == "released_key":
             key = obj['key'] if 'Key.' not in obj['key'] else special_keys[obj['key']]
             # print("id: {0}, action: {1}, time: {2}, key: {3}".format(id, action, _time, str(key)))
             if action == "pressed_key":
                 kb.press(key)
-            else:
+            elif action == "released_key":
                 kb.release(key)
-
-
         else:
-            move_for_scroll = True
             x, y = obj['x'], obj['y']
-            if action == "scroll" and index > 0 and (data[index - 1]['action'] == "pressed" or data[index - 1]['action'] == "released"):
-                if x == data[index - 1]['x'] and y == data[index - 1]['y']:
-                    move_for_scroll = False
             # print("id: {0}, x: {1}, y: {2}, action: {3}, time: {4}".format(id, x, y, action, _time))
             m.position = (x, y)
 
@@ -74,9 +69,7 @@ for loop in range(number_of_plays):
                 m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
             elif action == "released":
                 m.release(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
-            elif action == "scroll":
-                horizontal_direction, vertical_direction = obj['horizontal_direction'], obj['vertical_direction']
-                m.scroll(horizontal_direction, vertical_direction)
 
+        index += 1
         time.sleep(pause_time)
 

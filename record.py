@@ -12,82 +12,118 @@ if n < 2:
 if n == 2:
     name_of_recording = str(sys.argv[1])
 
-print("Hold left click for more than 1 seconds (and then release) to end the recording for mouse and click 'esc' to end the recording for keyboard (both are needed to finish recording)")
+print("f17 to start recording; f18 to pause, f17 + move mouse to end recording.")
 
 storage = []
 count = 0
 id = 0
-end = False
+start_recording = False
+end_recording = False
+pause_recording = False
+start_time = 0
+pause_time = 0
+pause_position = (0, 0)
+elapsed_pause_time = 0
+
+m = mouse.Controller()
 
 def on_press(key):
-    global id
+    global id, start_recording, pause_recording, end_recording, pause_time, elapsed_pause_time, pause_position
+
+    if not start_recording:
+        return True
+
+    if key == keyboard.Key.f18:
+        pause_recording = not pause_recording
+        if pause_recording:
+            print("Recording paused")
+            pause_time = time.time()
+            pause_position = m.position
+        else:
+            print("Recording unpaused")
+            m.position = pause_position
+            elapsed_pause_time = time.time() - pause_time
+
+        return True
+
+    if pause_recording:
+        return True
+
+    record_time = time.time() - elapsed_pause_time
     id = id + 1
     try:
-        json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': time.time()}
+        json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': record_time}
     except AttributeError:
         if key == keyboard.Key.f17:
-            global end
-            end = True
+            end_recording = True
+            print("Recording stopped at " + str(time.time()))
+            print("Elapsed time: " + str(time.time() - start_time))
+            print("Elapsed pause time: " + str(elapsed_pause_time))
             with open(name_of_recording, 'w') as outfile:
-                json.dump(storage, outfile)
+                json.dump(storage, outfile, indent=4)
             return False
-        json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': time.time()}
+        json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': record_time}
     storage.append(json_object)
 
 def on_release(key):
-    global id
+    global id, start_recording, pause_recording, start_time
+
+    if not start_recording and key == keyboard.Key.f17:
+        start_time = time.time()
+        print("Recording started at " + str(start_time))
+        start_recording = True
+        return True
+
+    if pause_recording:
+        return True
+
+    record_time = time.time() - elapsed_pause_time
     id = id + 1
     try:
-        json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': time.time()}
+        json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': record_time}
     except AttributeError:
-        json_object = {'id':id, 'action':'released_key', 'key':str(key), '_time': time.time()}
+        json_object = {'id':id, 'action':'released_key', 'key':str(key), '_time': record_time}
     storage.append(json_object)
 
 def on_move(x, y):
-    global id
-    id = id + 1
+    global id, start_recording, pause_recording, end_recording
+    if not start_recording:
+        print("Recording hasn't started!")
+        return True
 
-    global end
-    if end:
-        with open(name_of_recording, 'w') as outfile:
-            json.dump(storage, outfile, indent=4)
+    if pause_recording:
+        return True
+
+    if end_recording:
         return False
 
+    id = id + 1
+    record_time = time.time() - elapsed_pause_time
     if len(storage) >= 1:
         if storage[-1]['action'] != "moved":
-            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':time.time()}
+            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
             storage.append(json_object)
         # TODO should window be shorter?
-        elif storage[-1]['action'] == "moved" and time.time() - storage[-1]['_time'] > 0.01:
-            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':time.time()}
+        else record_time - storage[-1]['_time'] > 0.005:
+            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
             storage.append(json_object)
     else:
-        json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':time.time()}
+        json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
         storage.append(json_object)
 
 def on_click(x, y, button, pressed):
-    json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':time.time()}
-    storage.append(json_object)
+    global start_recording, pause_recording, id
+    if not start_recording or pause_recording:
+        return True
 
-def on_scroll(x, y, dx, dy):
-    global id
     id = id + 1
-    json_object = {'id':id, 'action': 'scroll', 'vertical_direction': int(dy), 'horizontal_direction': int(dx), 'x':x, 'y':y, '_time': time.time()}
+    record_time = time.time() - elapsed_pause_time
+    json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':record_time}
     storage.append(json_object)
-    global end
-    end = True
 
+keyboard_listener = keyboard.Listener(on_press=on_press, on_release=on_release)
 
-# Collect events from keyboard until esc
-# Collect events from mouse until scroll
-keyboard_listener = keyboard.Listener(
-    on_press=on_press,
-    on_release=on_release)
-
-mouse_listener = mouse.Listener(
-        on_click=on_click,
-        on_scroll=on_scroll,
-        on_move=on_move)
+mouse_listener = mouse.Listener(on_click=on_click, on_move=on_move)
 
 keyboard_listener.start()
 mouse_listener.start()
