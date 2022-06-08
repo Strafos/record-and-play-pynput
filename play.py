@@ -66,10 +66,10 @@ for loop in range(number_of_plays):
             m.position = (x, y)
 
             if action == "pressed":
-                mouse.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
+                m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
 #                time.sleep(.15)
             elif action == "released":
-                mouse.release(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
+                m.release(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
 #                time.sleep(.15)
 
         index += 1
