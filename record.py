@@ -68,10 +68,11 @@ def on_press(key):
 def on_release(key):
     global id, start_recording, pause_recording, start_time
 
-    if not start_recording and key == keyboard.Key.f17:
-        start_time = time.time()
-        print("Recording started at " + str(start_time))
-        start_recording = True
+    if not start_recording:
+        if key == keyboard.Key.f17:
+            start_time = time.time()
+            print("Recording started at " + str(start_time))
+            start_recording = True
         return True
 
     if pause_recording:

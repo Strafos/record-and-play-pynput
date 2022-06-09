@@ -67,10 +67,10 @@ for loop in range(number_of_plays):
 
             if action == "pressed":
                 m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
-#                time.sleep(.15)
+                time.sleep(.45)
             elif action == "released":
                 m.release(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
-#                time.sleep(.15)
+#                time.sleep(.45)
 
         index += 1
         time.sleep(pause_time)
