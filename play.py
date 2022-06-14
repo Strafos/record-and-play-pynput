@@ -66,8 +66,8 @@ for loop in range(args.iter):
 
             random_pause = random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else 0
             if action == "pressed":
-                m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
                 time.sleep(random_pause)
+                m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
             elif action == "released":
                 m.release(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
 
