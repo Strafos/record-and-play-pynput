@@ -1,24 +1,25 @@
 from pynput import keyboard
 from pynput.keyboard import Key
 from pynput import mouse
+import random
 import time
 import json
 import sys
+import argparse
 
-n = len(sys.argv)
+parser = argparse.ArgumentParser()
+parser.add_argument('file', type=str, help='path to the input file')
+parser.add_argument('--iter', type=int, help='number of iterations', default=1)
+parser.add_argument('--delay', type=int, help='delay on click in ms', default=0)
+parser.add_argument('--pause', action='store_true', help='pause playback initially')
+args = parser.parse_args()
+print(args)
 
-if n == 2:
-    name_of_recording = str(sys.argv[1])
-    number_of_plays = 1
-else:
-    name_of_recording = str(sys.argv[1])
-    number_of_plays = int(sys.argv[2])
-
-with open(name_of_recording) as json_file:
-    data = json.load(json_file)
+with open(args.file) as f:
+    data = json.load(f)
 
 # f18 to pause
-pause = False
+pause = args.pause
 def on_press(key):
     try:
         k = key.char
@@ -35,10 +36,12 @@ kb = keyboard.Controller()
 keyboard_listener.start()
 
 count = len(data)
+print("Record length: " + str(data[-1]["_time"] - data[0]["_time"]))
 
-for loop in range(number_of_plays):
+for loop in range(args.iter):
+    print("Iter: " + str(loop + 1))
     index = 0
-    while index < count - 1:
+    while index < len(data) - 1:
         if pause:
             continue
 
@@ -51,25 +54,22 @@ for loop in range(number_of_plays):
         except IndexError as e:
             break
 
-        print("id: {0}, pause_time: {1}".format(id, pause_time))
         if action == "pressed_key" or action == "released_key":
             key = obj['key'] if 'Key.' not in obj['key'] else special_keys[obj['key']]
-            # print("id: {0}, action: {1}, time: {2}, key: {3}".format(id, action, _time, str(key)))
             if action == "pressed_key":
                 kb.press(key)
             elif action == "released_key":
                 kb.release(key)
         else:
             x, y = obj['x'], obj['y']
-            # print("id: {0}, x: {1}, y: {2}, action: {3}, time: {4}".format(id, x, y, action, _time))
             m.position = (x, y)
 
+            random_pause = random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else 0
             if action == "pressed":
                 m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
-                time.sleep(.45)
+                time.sleep(random_pause)
             elif action == "released":
                 m.release(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
-#                time.sleep(.45)
 
         index += 1
         time.sleep(pause_time)
