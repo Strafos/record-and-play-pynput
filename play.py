@@ -35,7 +35,6 @@ m = mouse.Controller()
 kb = keyboard.Controller()
 keyboard_listener.start()
 
-count = len(data)
 print("Record length: " + str(data[-1]["_time"] - data[0]["_time"]))
 
 for loop in range(args.iter):

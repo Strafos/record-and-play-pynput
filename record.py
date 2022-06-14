@@ -3,20 +3,19 @@ from pynput import keyboard
 import time
 import json
 import sys
+import argparse
 
-n = len(sys.argv)
-
-if n < 2:
-    exit("Takes a compulsory argument - name of recording")
-
-if n == 2:
-    name_of_recording = str(sys.argv[1])
+parser = argparse.ArgumentParser()
+parser.add_argument('file', type=str, help='path to output file')
+args = parser.parse_args()
+print(args)
 
 print("f17 to start recording; f18 to pause, f17 + move mouse to end recording.")
 
 storage = []
 count = 0
 id = 0
+last_warning_time = 0
 start_recording = False
 end_recording = False
 pause_recording = False
@@ -26,6 +25,13 @@ pause_position = (0, 0)
 elapsed_pause_time = 0
 
 m = mouse.Controller()
+
+def log_elapsed(start, curr):
+    delta = curr - start
+    checkpoint = [i + 1 for i in range(30)]
+    for i in checkpoint:
+        if delta > i * 60 and delta < (i * 60 + 1):
+            print("Elapsed " + str(i) + " minutes")
 
 def on_press(key):
     global id, start_recording, pause_recording, end_recording, pause_time, elapsed_pause_time, pause_position
@@ -50,6 +56,8 @@ def on_press(key):
         return True
 
     record_time = time.time() - elapsed_pause_time
+    log_elapsed(start_time, record_time)
+
     id = id + 1
     try:
         json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': record_time}
@@ -79,6 +87,7 @@ def on_release(key):
         return True
 
     record_time = time.time() - elapsed_pause_time
+    log_elapsed(start_time, record_time)
     id = id + 1
     try:
         json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': record_time}
@@ -87,9 +96,12 @@ def on_release(key):
     storage.append(json_object)
 
 def on_move(x, y):
-    global id, start_recording, pause_recording, end_recording
+    global id, start_recording, pause_recording, end_recording, last_warning_time
     if not start_recording:
-        print("Recording hasn't started!")
+        curr = time.time()
+        if curr - last_warning_time > 1:
+             print("Recording hasn't started!")
+             last_warning_time = curr
         return True
 
     if pause_recording:
@@ -100,6 +112,7 @@ def on_move(x, y):
 
     id = id + 1
     record_time = time.time() - elapsed_pause_time
+    log_elapsed(start_time, record_time)
     if len(storage) >= 1:
         if storage[-1]['action'] != "moved":
             json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
@@ -118,6 +131,7 @@ def on_click(x, y, button, pressed):
 
     id = id + 1
     record_time = time.time() - elapsed_pause_time
+    log_elapsed(start_time, record_time)
     json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':record_time}
     storage.append(json_object)
 
