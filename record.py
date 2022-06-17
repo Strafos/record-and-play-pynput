@@ -67,7 +67,7 @@ def on_press(key):
             print("Recording stopped at " + str(time.time()))
             print("Elapsed time: " + str(time.time() - start_time))
             print("Elapsed pause time: " + str(elapsed_pause_time))
-            with open(name_of_recording, 'w') as outfile:
+            with open(args.file, 'w') as outfile:
                 json.dump(storage, outfile, indent=4)
             return False
         json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': record_time}
