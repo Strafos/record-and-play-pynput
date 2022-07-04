@@ -21,8 +21,7 @@ for i in range(len(json_list) - 1):
     cur_end_id = cur[-1]["id"]
     nxt_start_time = nxt[0]["_time"]
 
-    # Include a second of delay when combining
-    delta = nxt_start_time - cur_end_time - 1
+    delta = nxt_start_time - cur_end_time
 
     for action in nxt:
         action["_time"] = action["_time"] - delta

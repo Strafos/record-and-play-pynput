@@ -15,6 +15,8 @@ parser.add_argument('--pause', action='store_true', help='pause playback initial
 args = parser.parse_args()
 print(args)
 
+offset = 0
+
 with open(args.file) as f:
     data = json.load(f)
 
@@ -27,6 +29,9 @@ def on_press(key):
         if key == keyboard.Key.f18:
             global pause
             pause = not pause
+        if key == keyboard.Key.f17:
+            global offset
+            offset = .1
 
 special_keys = {"Key.esc": Key.esc, "Key.shift": Key.shift, "Key.tab": Key.tab, "Key.caps_lock": Key.caps_lock, "Key.ctrl": Key.ctrl, "Key.alt": Key.alt, "Key.cmd": Key.cmd, "Key.cmd_r": Key.cmd_r, "Key.alt_r": Key.alt_r, "Key.ctrl_r": Key.ctrl_r, "Key.shift_r": Key.shift_r, "Key.enter": Key.enter, "Key.backspace": Key.backspace, "Key.f19": Key.f19, "Key.f18": Key.f18, "Key.f17": Key.f17, "Key.f16": Key.f16, "Key.f15": Key.f15, "Key.f14": Key.f14, "Key.f13": Key.f13, "Key.media_volume_up": Key.media_volume_up, "Key.media_volume_down": Key.media_volume_down, "Key.media_volume_mute": Key.media_volume_mute, "Key.media_play_pause": Key.media_play_pause, "Key.f6": Key.f6, "Key.f5": Key.f5, "Key.right": Key.right, "Key.down": Key.down, "Key.left": Key.left, "Key.up": Key.up, "Key.page_up": Key.page_up, "Key.page_down": Key.page_down, "Key.home": Key.home, "Key.end": Key.end, "Key.delete": Key.delete, "Key.space": Key.space}
 
@@ -43,6 +48,9 @@ for loop in range(args.iter):
     while index < len(data) - 1:
         if pause:
             continue
+        if offset != 0:
+            time.sleep(offset)
+            offset = 0
 
         obj = data[index]
 
@@ -71,5 +79,6 @@ for loop in range(args.iter):
                 m.release(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
 
         index += 1
-        time.sleep(pause_time)
+        if pause_time > 0:
+            time.sleep(pause_time)
 
