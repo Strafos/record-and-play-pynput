@@ -40,7 +40,8 @@ m = mouse.Controller()
 kb = keyboard.Controller()
 keyboard_listener.start()
 
-print("Record length: " + str(data[-1]["_time"] - data[0]["_time"]))
+print("Record length: " + str((data[-1]["_time"] - data[0]["_time"])/60) + " mins")
+time.sleep(2)
 
 for loop in range(args.iter):
     print("Iter: " + str(loop + 1))
