@@ -44,6 +44,7 @@ print("Record length: " + str(data[-1]["_time"] - data[0]["_time"]))
 
 for loop in range(args.iter):
     print("Iter: " + str(loop + 1))
+
     index = 0
     while index < len(data) - 1:
         if pause:
@@ -55,11 +56,13 @@ for loop in range(args.iter):
         obj = data[index]
 
         id, action, _time = obj['id'], obj['action'], obj['_time']
-        try:
-            next_movement = data[index+1]['_time']
-            pause_time = next_movement - _time
-        except IndexError as e:
-            break
+        pause_time = obj['delay']
+        # Delete this after testing that the delay format works
+        # try:
+        #     next_movement = data[index+1]['_time']
+        #     pause_time = next_movement - _time
+        # except IndexError as e:
+        #     break
 
         if action == "pressed_key" or action == "released_key":
             key = obj['key'] if 'Key.' not in obj['key'] else special_keys[obj['key']]
@@ -71,7 +74,7 @@ for loop in range(args.iter):
             x, y = obj['x'], obj['y']
             m.position = (x, y)
 
-            random_pause = random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else 0
+            random_pause = random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else random.randint(0, 5)/100
             if action == "pressed":
                 time.sleep(random_pause)
                 m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
