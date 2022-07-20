@@ -57,10 +57,11 @@ def on_press(key):
 
     record_time = time.time() - elapsed_pause_time
     log_elapsed(start_time, record_time)
+    delay = record_time - storage[-1]['_time']
 
     id = id + 1
     try:
-        json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': record_time}
+        json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': record_time, 'delay': delay}
     except AttributeError:
         if key == keyboard.Key.f17:
             end_recording = True
@@ -68,9 +69,9 @@ def on_press(key):
             print("Elapsed time: " + str(time.time() - start_time))
             print("Elapsed pause time: " + str(elapsed_pause_time))
             with open(args.file, 'w') as outfile:
-                json.dump(storage, outfile, indent=4)
+                json.dump(storage[1:], outfile, indent=4)
             return False
-        json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': record_time}
+        json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': record_time, 'delay': delay}
     storage.append(json_object)
 
 def on_release(key):
@@ -81,18 +82,23 @@ def on_release(key):
             start_time = time.time()
             print("Recording started at " + str(start_time))
             start_recording = True
+
+            json_object = {'id':id, '_time': start_time, 'action': 'dummy_val'}
+            storage.append(json_object)
         return True
 
     if pause_recording:
         return True
 
     record_time = time.time() - elapsed_pause_time
+    delay = record_time - storage[-1]['_time']
     log_elapsed(start_time, record_time)
+
     id = id + 1
     try:
-        json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': record_time}
+        json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': record_time, 'delay': delay}
     except AttributeError:
-        json_object = {'id':id, 'action':'released_key', 'key':str(key), '_time': record_time}
+        json_object = {'id':id, 'action':'released_key', 'key':str(key), '_time': record_time, 'delay': delay}
     storage.append(json_object)
 
 def on_move(x, y):
@@ -112,13 +118,15 @@ def on_move(x, y):
 
     id = id + 1
     record_time = time.time() - elapsed_pause_time
+    delay = record_time - storage[-1]['_time'] 
     log_elapsed(start_time, record_time)
+
     if len(storage) >= 1:
         if storage[-1]['action'] != "moved":
-            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
+            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time, 'delay': delay}
             storage.append(json_object)
         elif record_time - storage[-1]['_time'] > 0.005:
-            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
+            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time, 'delay': delay}
             storage.append(json_object)
     else:
         json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
@@ -132,7 +140,9 @@ def on_click(x, y, button, pressed):
     id = id + 1
     record_time = time.time() - elapsed_pause_time
     log_elapsed(start_time, record_time)
-    json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':record_time}
+    delay = record_time - storage[-1]['_time'] 
+
+    json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':record_time, 'delay': delay}
     storage.append(json_object)
 
 keyboard_listener = keyboard.Listener(on_press=on_press, on_release=on_release)
