@@ -12,6 +12,7 @@ parser.add_argument('file', type=str, help='path to the input file')
 parser.add_argument('--iter', type=int, help='number of iterations', default=1)
 parser.add_argument('--delay', type=int, help='delay on click in ms', default=0)
 parser.add_argument('--pause', action='store_true', help='pause playback initially')
+parser.add_argument('--nomove', action='store_true', help='pause playback initially')
 args = parser.parse_args()
 print(args)
 
@@ -49,7 +50,7 @@ for loop in range(args.iter):
         id, action, _time = obj['id'], obj['action'], obj['_time']
         try:
             next_movement = data[index+1]['_time']
-            pause_time = next_movement - _time
+            pause_time = max(next_movement - _time, 0)
         except IndexError as e:
             break
 
@@ -61,7 +62,8 @@ for loop in range(args.iter):
                 kb.release(key)
         else:
             x, y = obj['x'], obj['y']
-            m.position = (x, y)
+            if not args.nomove:
+                m.position = (x, y)
 
             random_pause = random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else 0
             if action == "pressed":
