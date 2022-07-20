@@ -58,7 +58,7 @@ for loop in range(args.iter):
 
         id, action, _time = obj['id'], obj['action'], obj['_time']
         pause_time = obj['delay']
-        # Delete this after testing that the delay format works
+        # # Delete this after testing that the delay format works
         # try:
         #     next_movement = data[index+1]['_time']
         #     pause_time = next_movement - _time
