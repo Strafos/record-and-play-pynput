@@ -18,7 +18,7 @@ print(args)
 
 offset = 0
 
-with open(args.file) as f:
+with open("data/" + args.file) as f:
     data = json.load(f)
 
 # f18 to pause
@@ -58,14 +58,15 @@ for loop in range(args.iter):
         obj = data[index]
         id, action, _time = obj['id'], obj['action'], obj['_time']
 
-        pause_time = obj['delay']
-        # # Delete this after testing that the delay format works
-        # try:
-        #     next_movement = data[index+1]['_time']
-        #     pause_time = max(next_movement - _time, 0)
-        # except IndexError as e:
-        #     break
+        # pause_time = obj['delay']
+        # Delete this after testing that the delay format works
+        try:
+            next_movement = data[index+1]['_time']
+            pause_time = max(next_movement - _time, 0)
+        except IndexError as e:
+            break
 
+        random_pause = random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else random.randint(0, 5)/100
         if action == "pressed_key" or action == "released_key":
             key = obj['key'] if 'Key.' not in obj['key'] else special_keys[obj['key']]
             if action == "pressed_key":
@@ -77,7 +78,6 @@ for loop in range(args.iter):
             if not args.nomove:
                 m.position = (x, y)
 
-            random_pause = random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else random.randint(0, 5)/100
             if action == "pressed":
                 time.sleep(random_pause)
                 m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)

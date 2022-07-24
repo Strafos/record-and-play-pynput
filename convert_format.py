@@ -16,5 +16,5 @@ while i < len(data) - 1:
 
 data[-1]['delay'] = 0
 
-with open(filename + '_d', 'w') as f:
+with open(filename, 'w') as f:
     json.dump(data, f, indent=4)
