@@ -28,10 +28,10 @@ m = mouse.Controller()
 
 def log_elapsed(start, curr):
     delta = curr - start
-    checkpoint = [i + 1 for i in range(30)]
-    for i in checkpoint:
+    for i in range(1, 30):
         if delta > i * 60 and delta < (i * 60 + 1):
             print("Elapsed " + str(i) + " minutes")
+            break
 
 def on_press(key):
     global id, start_recording, pause_recording, end_recording, pause_time, elapsed_pause_time, pause_position
@@ -66,7 +66,7 @@ def on_press(key):
         if key == keyboard.Key.f17:
             end_recording = True
             print("Recording stopped at " + str(time.time()))
-            print("Elapsed time: " + str(time.time() - start_time))
+            print("Elapsed time: " + str((time.time() - start_time)/60))
             print("Elapsed pause time: " + str(elapsed_pause_time))
             with open("data/" + args.file, 'w') as outfile:
                 json.dump(storage[1:], outfile, indent=4)
@@ -118,7 +118,7 @@ def on_move(x, y):
 
     id = id + 1
     record_time = time.time() - elapsed_pause_time
-    delay = record_time - storage[-1]['_time'] 
+    delay = record_time - storage[-1]['_time']
     log_elapsed(start_time, record_time)
 
     if len(storage) >= 1:
@@ -140,7 +140,7 @@ def on_click(x, y, button, pressed):
     id = id + 1
     record_time = time.time() - elapsed_pause_time
     log_elapsed(start_time, record_time)
-    delay = record_time - storage[-1]['_time'] 
+    delay = record_time - storage[-1]['_time']
 
     json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':record_time, 'delay': delay}
     storage.append(json_object)
