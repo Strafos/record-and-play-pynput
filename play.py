@@ -66,7 +66,7 @@ for loop in range(args.iter):
         except IndexError as e:
             break
 
-        random_pause = random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else random.randint(0, 5)/100
+        random_pause = max(0, random.randint(args.delay - 10, args.delay + 10)/100 if args.delay != 0 else random.randint(0, 5)/100)
         if action == "pressed_key" or action == "released_key":
             key = obj['key'] if 'Key.' not in obj['key'] else special_keys[obj['key']]
             if action == "pressed_key":
