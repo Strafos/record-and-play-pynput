@@ -5,6 +5,20 @@ import random
 import sys
 import time
 
+# example json
+# {
+#   "programs": [
+#     {
+#       "files": ["alch"],
+#       "iter": 1,
+#       "delay": 0,
+#       "init_pause": 1,
+#       "nomove": 0,
+#       "postsleep": 0,
+#     },
+#   ]
+# }
+
 if len(sys.argv) < 2:
   exit()
 
@@ -17,6 +31,9 @@ with open(program_file, 'r') as f:
   js = json.load(f)
   program = js["program"]
 
+# TODO: need to handle loops recursively
+# right now, we can do: A -> 10 * (B | C) -> D
+# we can't do: 5 * (A -> 10 * (B | C) -> D)
 for obj in program:
     files = obj.get("files")
     iter = obj.get("iter", 1)
