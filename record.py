@@ -8,6 +8,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('file', type=str, help='path to output file')
 args = parser.parse_args()
+if not args.file.startswith("data/"):
+    args.file = "data/" + args.file
 print(args)
 
 print("f17 to start recording; f18 to pause, f17 + move mouse to end recording.")
@@ -66,9 +68,9 @@ def on_press(key):
         if key == keyboard.Key.f17:
             end_recording = True
             print("Recording stopped at " + str(time.time()))
-            print("Elapsed time: " + str((time.time() - start_time)/60))
-            print("Elapsed pause time: " + str(elapsed_pause_time))
-            with open("data/" + args.file, 'w') as outfile:
+            print("Elapsed time: " + str((time.time() - start_time)/60) + " minutes")
+            print("Elapsed pause time: " + str(elapsed_pause_time/60) + " minutes")
+            with open(args.file, 'w') as outfile:
                 json.dump(storage[1:], outfile, indent=4)
             return False
         json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': record_time, 'delay': delay}

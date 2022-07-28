@@ -14,6 +14,8 @@ parser.add_argument('--delay', type=int, help='delay on click in ms', default=0)
 parser.add_argument('--pause', action='store_true', help='pause playback initially')
 parser.add_argument('--nomove', action='store_true', help='pause playback initially')
 args = parser.parse_args()
+if not args.file.startswith("data/"):
+    args.file = "data/" + args.file
 print(args)
 
 offset = 0
