@@ -32,3 +32,4 @@ for data in json_list:
 print("Writing combined recording to: " + output)
 with open(output, 'w') as f:
     json.dump(result, f, indent=4)
+
