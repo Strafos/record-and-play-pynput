@@ -17,8 +17,13 @@ for i in range(len(json_list) - 1):
     cur = json_list[i]
     nxt = json_list[i + 1]
 
+    cur_end_time = cur[-1]["_time"]
     cur_end_id = cur[-1]["id"]
+    nxt_start_time = nxt[0]["_time"]
+    delta = nxt_start_time - cur_end_time
+
     for action in nxt:
+        action["_time"] = action["_time"] - delta
         action["id"] = action["id"] + cur_end_id
 
 for data in json_list:
