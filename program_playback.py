@@ -74,12 +74,15 @@ def play_actions(data, delay, nomove):
         id, action, _time = obj['id'], obj['action'], obj['_time']
 
         # TODO: delay results in different playback, why?
-        # pause_time = obj['delay']
+        pause_time = obj['delay']
         try:
             next_movement = data[index+1]['_time']
-            pause_time = max(next_movement - _time, 0)
+            base_pause_time = max(next_movement - _time, 0)
         except IndexError as e:
             break
+
+        if base_pause_time != pause_time:
+            print(id, pause_time, base_pause_time)
 
         random_pause = max(0, random.randint(delay - 10, delay + 10)/100 if delay != 0 else random.randint(0, 8)/100)
         if action == "pressed_key" or action == "released_key":

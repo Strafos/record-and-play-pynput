@@ -28,6 +28,13 @@ elapsed_pause_time = 0
 
 m = mouse.Controller()
 
+def set_delay(storage, curr):
+    if len(storage) == 0:
+        return
+
+    delay = curr - storage[-1]["_time"]
+    storage[-1]["delay"] = delay
+
 def log_elapsed(start, curr):
     delta = curr - start
     for i in range(1, 30):
@@ -45,13 +52,14 @@ def on_press(key):
         pause_recording = not pause_recording
         if pause_recording:
             print("Recording paused")
+            print(time.time())
             pause_time = time.time()
             pause_position = m.position
         else:
             print("Recording unpaused")
+            print(time.time())
             m.position = pause_position
             elapsed_pause_time = time.time() - pause_time
-
         return True
 
     if pause_recording:
@@ -59,11 +67,11 @@ def on_press(key):
 
     record_time = time.time() - elapsed_pause_time
     log_elapsed(start_time, record_time)
-    delay = record_time - storage[-1]['_time']
+    set_delay(storage, record_time)
 
     id = id + 1
     try:
-        json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': record_time, 'delay': delay}
+        json_object = {'id':id, 'action':'pressed_key', 'key':key.char, '_time': record_time}
     except AttributeError:
         if key == keyboard.Key.f17:
             end_recording = True
@@ -73,7 +81,7 @@ def on_press(key):
             with open(args.file, 'w') as outfile:
                 json.dump(storage[1:], outfile, indent=4)
             return False
-        json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': record_time, 'delay': delay}
+        json_object = {'id':id, 'action':'pressed_key', 'key':str(key), '_time': record_time}
     storage.append(json_object)
 
 def on_release(key):
@@ -93,14 +101,14 @@ def on_release(key):
         return True
 
     record_time = time.time() - elapsed_pause_time
-    delay = record_time - storage[-1]['_time']
     log_elapsed(start_time, record_time)
+    set_delay(storage, record_time)
 
     id = id + 1
     try:
-        json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': record_time, 'delay': delay}
+        json_object = {'id':id, 'action':'released_key', 'key':key.char, '_time': record_time}
     except AttributeError:
-        json_object = {'id':id, 'action':'released_key', 'key':str(key), '_time': record_time, 'delay': delay}
+        json_object = {'id':id, 'action':'released_key', 'key':str(key), '_time': record_time}
     storage.append(json_object)
 
 def on_move(x, y):
@@ -120,15 +128,15 @@ def on_move(x, y):
 
     id = id + 1
     record_time = time.time() - elapsed_pause_time
-    delay = record_time - storage[-1]['_time']
     log_elapsed(start_time, record_time)
+    set_delay(storage, record_time)
 
     if len(storage) >= 1:
         if storage[-1]['action'] != "moved":
-            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time, 'delay': delay}
+            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
             storage.append(json_object)
         elif record_time - storage[-1]['_time'] > 0.005:
-            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time, 'delay': delay}
+            json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
             storage.append(json_object)
     else:
         json_object = {'id':id, 'action':'moved', 'x':x, 'y':y, '_time':record_time}
@@ -142,9 +150,9 @@ def on_click(x, y, button, pressed):
     id = id + 1
     record_time = time.time() - elapsed_pause_time
     log_elapsed(start_time, record_time)
-    delay = record_time - storage[-1]['_time']
+    set_delay(storage, record_time)
 
-    json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':record_time, 'delay': delay}
+    json_object = {'id':id, 'action':'pressed' if pressed else 'released', 'button':str(button), 'x':x, 'y':y, '_time':record_time}
     storage.append(json_object)
 
 keyboard_listener = keyboard.Listener(on_press=on_press, on_release=on_release)

@@ -10,8 +10,13 @@ i = 0
 while i < len(data) - 1:
     cur = data[i]
     nxt = data[i + 1]
-    delay = nxt['_time'] - cur['_time']
-    data[i]['delay'] = delay
+
+    if 'delay' in cur:
+        cur['delay'] = nxt['delay']
+    else:
+        delay = nxt['_time'] - cur['_time']
+        data[i]['delay'] = delay
+
     i += 1
 
 data[-1]['delay'] = 0
