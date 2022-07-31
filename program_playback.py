@@ -94,8 +94,8 @@ def play_actions(data, delay, nomove):
                 m.position = (x, y)
 
             if action == "pressed":
-                m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
                 time.sleep(random_pause)
+                m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
             elif action == "released":
                 m.release(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
 
