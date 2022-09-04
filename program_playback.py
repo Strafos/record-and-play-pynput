@@ -97,6 +97,7 @@ def play_actions(data, delay, nomove):
                 m.position = (x, y)
 
             if action == "pressed":
+                # TODO: flag to disable random pause
                 time.sleep(random_pause)
                 m.press(mouse.Button.left if obj['button'] == "Button.left" else mouse.Button.right)
             elif action == "released":
@@ -129,7 +130,7 @@ def handle_program(program, default_delay=0):
     nomove = program.get("nomove", False)
     postsleep = program.get("postsleep", 0)
 
-    for _ in range(iter):
+    for i in range(iter):
         if "programs" in program:
             print("Handle program: ")
             print(program)
@@ -137,10 +138,12 @@ def handle_program(program, default_delay=0):
         elif "actions" in program:
             play_actions(program["actions"], delay, nomove)
         elif "files" in program:
+            print("Iter: " + str(i) + "/" + str(iter - 1))
             play_files(program["files"], delay, nomove)
 
-    if postsleep:
-        time.sleep(postsleep)
+        if postsleep:
+            print("post sleep:" + str(postsleep))
+            time.sleep(postsleep)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -158,7 +161,7 @@ if __name__ == "__main__":
     if isinstance(js, list):
         # Legacy format, treat as actions
         program = {
-            "actions": js,
+            "files": [args.file],
             "iter": args.iter,
             "delay": args.delay,
             "init_pause": args.pause,
